@@ -70,6 +70,19 @@
   .updated-badge {
     font-size: 12px; color: rgba(255,255,255,.6); white-space: nowrap; margin-left: auto;
   }
+  .zoom-controls {
+    display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,.08);
+    border-radius: 8px; padding: 4px 6px; flex-shrink: 0;
+  }
+  .zoom-controls button {
+    border: none; background: rgba(255,255,255,.14); color: #fff; width: 26px; height: 26px;
+    border-radius: 6px; cursor: pointer; font-size: 15px; line-height: 1; font-weight: 700;
+  }
+  .zoom-controls button:hover:not(:disabled) { background: rgba(255,255,255,.28); }
+  .zoom-controls button:disabled { opacity: .3; cursor: default; }
+  .zoom-controls #zoomLabel {
+    font-size: 12.5px; color: #fff; min-width: 36px; text-align: center; cursor: pointer; user-select: none;
+  }
 
   /* ---------- Body layout ---------- */
   .body-wrap { flex: 1; display: flex; overflow: hidden; }
@@ -96,7 +109,8 @@
   main.content {
     flex: 1; overflow-y: auto; padding: 28px 0 80px; scroll-behavior: smooth;
   }
-  .page-block { max-width: 980px; margin: 0 auto 26px; padding: 0 20px; }
+  :root { --zoom: 1; }
+  .page-block { max-width: calc(980px * var(--zoom)); margin: 0 auto 26px; padding: 0 20px; transition: max-width .15s ease; }
   .page-block .page-head {
     display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding: 0 2px;
   }
@@ -154,6 +168,11 @@
       <button id="prevMatch" title="이전 결과">▲</button>
       <button id="nextMatch" title="다음 결과">▼</button>
     </div>
+  </div>
+  <div class="zoom-controls" title="화면 확대/축소">
+    <button id="zoomOut">－</button>
+    <span id="zoomLabel">100%</span>
+    <button id="zoomIn">＋</button>
   </div>
   <span class="updated-badge">최종 업데이트 2026.08.28</span>
 </header>
@@ -318,9 +337,32 @@ const menuToggle = document.getElementById('menuToggle');
 menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
 function closeMobileNav(){ sidebar.classList.remove('open'); }
 
+// ---- zoom controls ----
+let zoomPct = 100;
+const ZOOM_MIN = 50, ZOOM_MAX = 200, ZOOM_STEP = 10;
+function applyZoom(){
+  document.documentElement.style.setProperty('--zoom', (zoomPct/100).toString());
+  document.getElementById('zoomLabel').textContent = zoomPct + '%';
+  document.getElementById('zoomOut').disabled = zoomPct <= ZOOM_MIN;
+  document.getElementById('zoomIn').disabled = zoomPct >= ZOOM_MAX;
+}
+document.getElementById('zoomIn').addEventListener('click', () => {
+  zoomPct = Math.min(ZOOM_MAX, zoomPct + ZOOM_STEP);
+  applyZoom();
+});
+document.getElementById('zoomOut').addEventListener('click', () => {
+  zoomPct = Math.max(ZOOM_MIN, zoomPct - ZOOM_STEP);
+  applyZoom();
+});
+document.getElementById('zoomLabel').addEventListener('dblclick', () => {
+  zoomPct = 100;
+  applyZoom();
+});
+
 // init
 renderSidebar();
 renderContent();
+applyZoom();
 setTimeout(setupObserver, 50);
 </script>
 </body>
