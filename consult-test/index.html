@@ -656,7 +656,7 @@ const Engine = (() => {
       if ((PLACE.test(q0) && (ask || short)) || (!rg.generic && lastLoc && short)) {
         const items = [{ id: "CA-01", score: 1, why: { ent: [], intent: ["위치"] }, via: "지역" }];
         if (!rg.has && !rg.generic && FROM.test(q0) && byId["IN-59"]) items.push({ id: "IN-59", score: 1, why: { ent: [], intent: ["방법"] }, via: "지역" });
-        return { q: q0, intent: ["위치"], ent: [], mode: "지역", region: rg.name, has: rg.has, centers: rg.centers, amb: !!rg.amb, generic: !!rg.generic, items, fixes: [] };
+        return { q: q0, intent: ["위치"], ent: [], mode: "지역", region: rg.name, has: rg.has, centers: rg.centers, amb: !!rg.amb, generic: !!rg.generic, follow: !PLACE.test(q0) && !!lastLoc, items, fixes: [] };
       }
     }
     const d0 = decide0(q0, ctx, opt);
@@ -733,7 +733,8 @@ const BUILTIN = [{"id": "SV-01", "cat": "서비스 이해", "sub": "개념", "tg
 const SYN_BUILTIN = [{"key": "센터", "alts": ["물류센터", "창고", "FC", "풀필먼트센터", "풀필먼트 센터", "거점", "물류창고"], "kind": "일반"}, {"key": "저온", "alts": ["냉장", "냉동", "콜드체인", "신선", "저온센터"], "kind": "일반"}, {"key": "비용", "alts": ["요금", "가격", "단가", "얼마", "견적", "수수료", "물류비", "금액"], "kind": "일반"}, {"key": "출고", "alts": ["발송", "출하", "내보내기", "보내기"], "kind": "일반"}, {"key": "마감", "alts": ["컷오프", "마감시간", "마감 시간", "몇 시까지", "cut off"], "kind": "일반"}, {"key": "반품", "alts": ["리턴", "회수", "반송", "return"], "kind": "일반"}, {"key": "교환", "alts": ["맞교환", "재발송", "교환배송"], "kind": "일반"}, {"key": "정산", "alts": ["결제", "청구", "대금", "입금", "납부", "결제일"], "kind": "일반"}, {"key": "세금계산서", "alts": ["계산서", "증빙", "세계"], "kind": "일반"}, {"key": "입고", "alts": ["납품", "입고신청", "입고 신청", "물건 보내기", "센터로 보내기", "입고 예약"], "kind": "일반"}, {"key": "팔레트", "alts": ["파렛트", "팔렛트", "빠레트", "빠렛트", "파레트", "빠래트", "파래트", "팔래트", "빠래뜨", "빠레뜨", "빠렛뜨", "파렛뜨", "팔레뜨", "팔렡", "plt", "pallet"], "kind": "표기 통일"}, {"key": "도착보장", "alts": ["오늘출발", "빠른배송", "도착보장배송", "N배송", "내일도착"], "kind": "일반"}, {"key": "연동", "alts": ["연결", "API", "주문수집", "쇼핑몰 연결", "주문 연동", "연계"], "kind": "일반"}, {"key": "실사", "alts": ["재고조사", "재고실사", "재고 맞추기", "재고 점검"], "kind": "일반"}, {"key": "바코드", "alts": ["상품코드", "SKU", "라벨", "바코드 라벨"], "kind": "일반"}, {"key": "계약", "alts": ["입점", "가입", "이용 신청", "이용신청"], "kind": "일반"}, {"key": "당일배송", "alts": ["오늘도착", "당일 도착", "당일 배송"], "kind": "일반"}, {"key": "새벽배송", "alts": ["새벽 도착", "새벽 배송", "샛별"], "kind": "일반"}, {"key": "eFLEXs", "alts": ["이플렉스", "eflex", "이플렉스 시스템", "WMS", "관리 시스템"], "kind": "일반"}, {"key": "G마켓", "alts": ["지마켓", "gmarket", "G 마켓"], "kind": "채널 표기"}, {"key": "토스쇼핑", "alts": ["토스", "Toss", "toss"], "kind": "채널 표기"}, {"key": "11번가", "alts": ["십일번가", "11st"], "kind": "채널 표기"}, {"key": "네이버", "alts": ["스마트스토어", "스스", "naver", "네이버쇼핑"], "kind": "채널 표기"}, {"key": "오늘의집", "alts": ["오집", "ohouse"], "kind": "채널 표기"}, {"key": "쿠팡", "alts": ["coupang", "로켓그로스"], "kind": "채널 표기"}, {"key": "몇 개", "alts": ["몇개", "몇 곳", "몇곳", "갯수", "개수", "몇 군데", "몇군데"], "kind": "띄어쓰기"}, {"key": "할 수", "alts": ["할수"], "kind": "띄어쓰기"}, {"key": "될까요", "alts": ["되나요", "돼요", "되죠", "되니", "됨?"], "kind": "어미"}, {"key": "새벽배송", "alts": ["새백배송", "샛벽배송", "세벽배송"], "kind": "오타"}, {"key": "물류센터", "alts": ["물류샌터", "물류센타", "물류쎈터"], "kind": "오타"}];
 </script>
 <script>
-/* 더 풀필 AI 물류상담 v1.2.2 — 상담 화면
+/* 더 풀필 AI 물류상담 v1.2.3 — 상담 화면
+   - v1.2.3: 이어 묻는 지역 질문(용인은요?)은 📍 한 줄로만 답변, 지역 답변이 대화 기록에 한 줄로 남도록 정리
    - v1.2.2: 지역 질문 전용 답변(운영 센터 유무 + 출고지에서 보내는 방법), 앞쪽 사정 설명을 떼고 본 질문으로 답변
    - v1.2.1: 오타 교정 안내, 이어 묻기 3단계(다른 카드·앞 답변 발췌·정보 없음), 스토어 주소 선택 입력, 판매채널 '자사몰', 동의 문구 v1.1
    - v1.2: A안 엔진(질문 다듬기·동의어·짧은 답·답변 조합·이어 묻기·되묻기), 후속 버튼 연결(카드·외부 링크), 테스트 모드 판정 근거
@@ -906,8 +907,8 @@ async function answerCard(id, q, via, score, o = {}) {
   S.asked.add(id);
   if (c.cat !== "대화 운영") S.lastCard = id;
   const head = (o.label ? `<div class="parthd">${esc(o.label)}</div>` : "") + (o.pre ? `<div class="preans"><b>앞서 안내드린 내용 중</b> ${esc(o.pre)}</div>` : "") + (o.short ? `<div class="shortans">📌 ${esc(o.short)}</div>` : "") + (o.lead ? `<div class="shortans">📍 ${esc(o.lead)}</div>` : "");
-  const row = await addBot(head + fmtAnswer(c.a), { card: c, chips: cardChips(c), why: o.why });
-  addQA(via === "추천" ? c.q : q, o.short || shortA(c.a), id, row);
+  const row = await addBot(head + (o.leadOnly ? "" : fmtAnswer(c.a)), { card: c, chips: cardChips(c), why: o.why });
+  if (!o.noQA) addQA(via === "추천" ? c.q : q, o.short || o.lead || shortA(c.a), id, row);
   if (!o.noRelated) addRelated(c);
   const L = o.log || {};
   if (!o.noLog) track(2, { q: via === "추천" ? c.q : q, result: via === "후보" ? "후보선택" : via === "추천" ? "버튼" : "답변", card: id, score: score || 0, ...L });
@@ -933,8 +934,8 @@ async function ask(text) {
   }
   if (d.mode === "지역") {
     const second = d.items[1];
-    await answerCard("CA-01", text, "답변", 1, { lead: regionLead(d), noRelated: !!second, why: "지역 · " + (d.region || "지역 일반") + (d.has ? " · 운영 센터 있음" : d.amb ? " · 경기 광주/광주광역시 구분" : " · 운영 센터 없음"), log: { stage: "즉답", norm, typo } });
-    if (second && byId(second.id)) await answerCard(second.id, text, "답변", 1, { label: `출고지(${d.region})에서 센터까지 보내는 방법`, noLog: true, why: "지역 · 출고지 안내 · 카드 " + second.id });
+    await answerCard("CA-01", text, "답변", 1, { lead: regionLead(d), leadOnly: !!d.follow, noRelated: !!second || !!d.follow, why: "지역 · " + (d.region || "지역 일반") + (d.has ? " · 운영 센터 있음" : d.amb ? " · 경기 광주/광주광역시 구분" : " · 운영 센터 없음"), log: { stage: "즉답", norm, typo } });
+    if (second && byId(second.id)) await answerCard(second.id, text, "답변", 1, { label: `출고지(${d.region})에서 센터까지 보내는 방법`, noLog: true, noQA: true, why: "지역 · 출고지 안내 · 카드 " + second.id });
     S.lastCard = "CA-01"; // 이어서 '용인은요?' 처럼 물으면 센터 위치 주제로 이어 받음
     return;
   }
